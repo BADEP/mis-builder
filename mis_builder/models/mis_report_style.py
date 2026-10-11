@@ -86,7 +86,7 @@ class MisReportKpiStyle(models.Model):
     }
 
     # style name
-    name = fields.Char(string="Style name", required=True)
+    name = fields.Char(string="Style name", required=True, copy=True)
 
     # color
     color_inherit = fields.Boolean(default=True)
