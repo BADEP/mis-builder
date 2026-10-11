@@ -39,8 +39,7 @@ class KpiMatrixRow:
     def label(self):
         if not self.account_id:
             return self.kpi.description
-        else:
-            return self._matrix.get_account_name(self.account_id)
+        return self._matrix.get_account_name(self.account_id)
 
     def iter_cell_tuples(self, cols=None):
         if cols is None:
@@ -103,6 +102,7 @@ class KpiMatrixSubCol:
     def subkpi(self):
         if self.col.subkpis:
             return self.col.subkpis[self.index]
+        return None
 
     def iter_cells(self):
         for cell_tuple in self.col.iter_cell_tuples():
@@ -257,10 +257,9 @@ class KpiMatrix:
                         row.kpi.style_expression, col.locals_dict
                     )
                 except Exception:
-                    _logger.error(
+                    _logger.exception(
                         "Error evaluating style expression <%s>",
                         row.kpi.style_expression,
-                        exc_info=True,
                     )
                 if style_name:
                     style = self._style_model.search([("name", "=", style_name)])
@@ -452,8 +451,7 @@ class KpiMatrix:
 
         yields KpiMatrixCol: one for each column or comparison.
         """
-        for _col_key, col in self._cols.items():
-            yield col
+        yield from self._cols.values()
 
     def iter_subcols(self):
         """Iterate sub columns in display order.

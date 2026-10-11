@@ -56,6 +56,7 @@ class OdooDocTestCase(BaseCase):
     def __getattr__(self, item):
         if item == self.__name:
             return self.__test
+        return None
 
 
 def load_doctests(module):
@@ -94,11 +95,7 @@ def try_xlsx_report(
 
     if res_format == "xlsx":
         return openpyxl.load_workbook(io.BytesIO(res_data), data_only=True)
-    else:
-        _logger.warning(
-            'Report %s produced a "%s" chunk, cannot examine it', rname, res_format
-        )
-        return False
-
-    _test_logger.info("  + Report %s produced correctly.", rname)
-    return True
+    _logger.warning(
+        'Report %s produced a "%s" chunk, cannot examine it', rname, res_format
+    )
+    return False

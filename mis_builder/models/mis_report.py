@@ -7,9 +7,9 @@ import logging
 import re
 import time
 from collections import defaultdict
+from zoneinfo import ZoneInfo
 
 import dateutil
-import pytz
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
@@ -56,10 +56,15 @@ class AutoStruct:
 
 def _utc_midnight(d, tz_name, add_day=0):
     d = fields.Datetime.from_string(d) + datetime.timedelta(days=add_day)
-    utc_tz = pytz.timezone("UTC")
-    context_tz = pytz.timezone(tz_name)
-    local_timestamp = context_tz.localize(d, is_dst=False)
-    return fields.Datetime.to_string(local_timestamp.astimezone(utc_tz))
+    local_timestamp = d.replace(tzinfo=ZoneInfo(tz_name))
+    if local_timestamp.dst():
+        # mimic pytz localize(is_dst=False) for ambiguous/non-existent times
+        alt_timestamp = local_timestamp.replace(fold=1 - local_timestamp.fold)
+        if not alt_timestamp.dst():
+            local_timestamp = alt_timestamp
+    return fields.Datetime.to_string(
+        local_timestamp.astimezone(datetime.UTC).replace(tzinfo=None)
+    )
 
 
 def _python_var(var_str):
@@ -145,7 +150,7 @@ class MisReportKpi(models.Model):
 
     _order = "sequence, id"
 
-    _rec_names_search = ["name", "description"]
+    _rec_names_search = ("name", "description")
 
     @api.depends("description", "name")
     def _compute_display_name(self):
@@ -236,13 +241,11 @@ class MisReportKpi(models.Model):
     def _get_expressions(self, subkpis):
         if subkpis and self.multi:
             return [self._get_expression_for_subkpi(subkpi) for subkpi in subkpis]
-        else:
-            if self.expression_ids:
-                assert len(self.expression_ids) == 1
-                assert not self.expression_ids[0].subkpi_id
-                return self.expression_ids
-            else:
-                return [None]
+        if self.expression_ids:
+            assert len(self.expression_ids) == 1
+            assert not self.expression_ids[0].subkpi_id
+            return self.expression_ids
+        return [None]
 
 
 class MisReportSubkpi(models.Model):
@@ -477,7 +480,7 @@ class MisReport(models.Model):
         for kpi in self.kpi_ids:
             if not kpi.multi:
                 continue
-            new_subkpis = {subkpi for subkpi in self.subkpi_ids}
+            new_subkpis = set(self.subkpi_ids)
             expressions = []
             for expression in kpi.expression_ids:
                 assert expression.subkpi_id  # must be true if kpi is multi
@@ -598,7 +601,7 @@ class MisReport(models.Model):
                     ]
                 )
             field_names = [f.name for f in query_sudo.field_ids]
-            all_stored = all([model._fields[f].store for f in field_names])
+            all_stored = all(model._fields[f].store for f in field_names)
             if not query.aggregate:
                 data = model.search_read(domain, field_names)
                 res[query.name] = [AutoStruct(**d) for d in data]
@@ -922,13 +925,10 @@ class MisReport(models.Model):
 
         if target_move == "posted":
             return [("parent_state", "=", "posted")]
-        elif target_move == "all":
+        if target_move == "all":
             # all (in Odoo 13+, there is also the cancel state that we must ignore)
             return [("parent_state", "in", ("posted", "draft"))]
-        else:
-            raise UserError(
-                self.env._("Unexpected value %s for target_move.", target_move)
-            )
+        raise UserError(self.env._("Unexpected value %s for target_move.", target_move))
 
     def evaluate(
         self,

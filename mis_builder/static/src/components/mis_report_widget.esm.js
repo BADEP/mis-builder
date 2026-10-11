@@ -1,22 +1,24 @@
-import {Component, onMounted, onWillStart, useState, useSubEnv} from "@odoo/owl";
+import {Component, onMounted, onWillStart, proxy, usePlugin} from "@odoo/owl";
 import {useBus, useService} from "@web/core/utils/hooks";
 import {DateTimeInput} from "@web/core/datetime/datetime_input";
+import {useSubEnv} from "@web/owl2/utils";
 import {SearchBar} from "@web/search/search_bar/search_bar";
 import {SearchModel} from "@web/search/search_model";
 import {parseDate} from "@web/core/l10n/dates";
 import {registry} from "@web/core/registry";
 import {AnnotationDialog} from "../annotation_dialog/annotation_dialog.esm";
 import {_t} from "@web/core/l10n/translation";
+import {ActionManagerPlugin} from "@web/webclient/actions/action_plugin";
 
 export class MisReportWidget extends Component {
   setup() {
     super.setup();
     this.orm = useService("orm");
-    this.action = useService("action");
+    this.action = usePlugin(ActionManagerPlugin);
     this.view = useService("view");
     this.dialog = useService("dialog");
     this.JSON = JSON;
-    this.state = useState({
+    this.state = proxy({
       mis_report_data: {header: [], body: [], notes: {}},
       pivot_date: null,
       can_edit_annotation: false,

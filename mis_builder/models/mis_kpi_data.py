@@ -56,10 +56,7 @@ class MisKpiData(models.AbstractModel):
     def _compute_name(self):
         for rec in self:
             subkpi_name = rec.kpi_expression_id.subkpi_id.name
-            if subkpi_name:
-                subkpi_name = "." + subkpi_name
-            else:
-                subkpi_name = ""
+            subkpi_name = "." + subkpi_name if subkpi_name else ""
             rec.name = (
                 f"{rec.kpi_expression_id.kpi_id.name}{subkpi_name}: "
                 f"{rec.date_from} - {rec.date_to}"

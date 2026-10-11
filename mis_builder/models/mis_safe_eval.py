@@ -3,7 +3,7 @@
 
 import traceback
 
-from odoo.tools.safe_eval import (
+from odoo.tools.safe_eval.evaluation import (
     _BUILTINS,
     _SAFE_OPCODES,
     assert_valid_codeobj,
@@ -33,6 +33,6 @@ def mis_safe_eval(expr, locals_dict):
         val = NameDataError("#NAME", traceback.format_exc())
     except ZeroDivisionError:
         val = DataError("#DIV/0", traceback.format_exc())
-    except Exception:
+    except Exception:  # noqa: BLE001 - any error becomes a #ERR cell value
         val = DataError("#ERR", traceback.format_exc())
     return val

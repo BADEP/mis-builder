@@ -1,4 +1,4 @@
-import {Component, useState} from "@odoo/owl";
+import {Component, proxy} from "@odoo/owl";
 import {Dialog} from "@web/core/dialog/dialog";
 
 export class AnnotationDialog extends Component {
@@ -14,7 +14,7 @@ export class AnnotationDialog extends Component {
   static template = "mis_builder.AnnotationDialog";
 
   setup() {
-    this.state = useState({
+    this.state = proxy({
       annotationText: this.props.annotationText,
     });
   }

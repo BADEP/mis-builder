@@ -29,7 +29,7 @@ class ProRataReadGroupMixin(models.AbstractModel):
     def _search_date(self, operator, value):
         if operator in (">=", ">"):
             return Domain("date_to", operator, value)
-        elif operator in ("<=", "<"):
+        if operator in ("<=", "<"):
             return Domain("date_from", operator, value)
         raise UserError(
             self.env._("Unsupported operator %s for searching on date", operator)

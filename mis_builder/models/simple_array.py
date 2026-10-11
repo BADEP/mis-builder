@@ -99,24 +99,22 @@ class SimpleArray(tuple):
                 return op(x, y)
             except ZeroDivisionError:
                 return DataError("#DIV/0", traceback.format_exc())
-            except Exception:
+            except Exception:  # noqa: BLE001 - any error becomes a #ERR value
                 return DataError("#ERR", traceback.format_exc())
 
         if isinstance(other, tuple):
             if len(other) != len(self):
                 raise TypeError(f"tuples must have same length for {op}")
             return self.__class__(map(_o2, self, other))
-        else:
-            return self.__class__(_o2(z, other) for z in self)
+        return self.__class__(_o2(z, other) for z in self)
 
     def _cast(self, other):
         if isinstance(other, self.__class__):
             return other
-        elif isinstance(other, tuple):
+        if isinstance(other, tuple):
             return self.__class__(other)
-        else:
-            # other is a scalar
-            return self.__class__(itertools.repeat(other, len(self)))
+        # other is a scalar
+        return self.__class__(itertools.repeat(other, len(self)))
 
     def __add__(self, other):
         return self._op(operator.add, other)

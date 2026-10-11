@@ -3,6 +3,7 @@
 # Copyright 2020 CorporateHub (https://corporatehub.eu)
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
+import typing
 
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
@@ -57,11 +58,14 @@ class MisReportKpiStyle(models.Model):
                     self.env._("Indent level must be greater than or equal to 0")
                 )
 
-    _font_style_selection = [("normal", "Normal"), ("italic", "Italic")]
+    _font_style_selection: typing.ClassVar = [
+        ("normal", "Normal"),
+        ("italic", "Italic"),
+    ]
 
-    _font_weight_selection = [("nornal", "Normal"), ("bold", "Bold")]
+    _font_weight_selection: typing.ClassVar = [("nornal", "Normal"), ("bold", "Bold")]
 
-    _font_size_selection = [
+    _font_size_selection: typing.ClassVar = [
         ("medium", "medium"),
         ("xx-small", "xx-small"),
         ("x-small", "x-small"),
@@ -71,7 +75,7 @@ class MisReportKpiStyle(models.Model):
         ("xx-large", "xx-large"),
     ]
 
-    _font_size_to_xlsx_size = {
+    _font_size_to_xlsx_size: typing.ClassVar = {
         "medium": 11,
         "xx-small": 5,
         "x-small": 7,
@@ -208,10 +212,9 @@ class MisReportKpiStyle(models.Model):
                 style_props.suffix,
                 sign=sign,
             )
-        elif var_type == TYPE_PCT:
+        if var_type == TYPE_PCT:
             return self.render_pct(lang, value, style_props.dp, sign=sign)
-        else:
-            return self.render_str(lang, value)
+        return self.render_str(lang, value)
 
     @api.model
     def render_num(

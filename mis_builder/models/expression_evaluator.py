@@ -36,10 +36,7 @@ class ExpressionEvaluator:
         name_error = False
         for expression in expressions:
             expr = expression and expression.name or "AccountingNone"
-            if self.aep:
-                replaced_expr = self.aep.replace_expr(expr)
-            else:
-                replaced_expr = expr
+            replaced_expr = self.aep.replace_expr(expr) if self.aep else expr
             val = mis_safe_eval(replaced_expr, locals_dict)
             vals.append(val)
             if isinstance(val, NameDataError):

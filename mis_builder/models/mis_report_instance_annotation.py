@@ -66,8 +66,7 @@ class MisReportInstanceAnnotation(models.Model):
         annotation_rec = annotations.filtered(
             lambda rec: rec.annotation_context == annotation_context
         )
-        annotation = next(iter(annotation_rec), annotation_rec)
-        return annotation
+        return next(iter(annotation_rec), annotation_rec)
 
     @api.model
     def set_annotation(self, cell_id, instance_id, note):
