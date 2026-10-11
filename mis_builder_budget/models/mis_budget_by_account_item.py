@@ -1,11 +1,13 @@
 # Copyright 2017-2020 ACSONE SA/NV
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
+import typing
+
 from odoo import api, fields, models
 
 
 class MisBudgetByAccountItem(models.Model):
-    _inherit = [
+    _inherit: typing.ClassVar[list[str]] = [
         "mis.budget.item.abstract",
         "prorata.read_group.mixin",
         "analytic.mixin",

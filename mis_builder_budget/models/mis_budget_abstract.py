@@ -1,13 +1,15 @@
 # Copyright 2017-2020 ACSONE SA/NV
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
+import typing
+
 from odoo import api, fields, models
 
 
 class MisBudgetAbstract(models.AbstractModel):
     _name = "mis.budget.abstract"
     _description = "MIS Budget (Abstract Base Class)"
-    _inherit = ["mail.thread"]
+    _inherit: typing.ClassVar[list[str]] = ["mail.thread"]
 
     name = fields.Char(required=True, tracking=True)
     description = fields.Char(tracking=True)
@@ -43,12 +45,11 @@ class MisBudgetAbstract(models.AbstractModel):
     @api.onchange("date_from", "date_to")
     def _onchange_dates(self):
         for rec in self:
-            if rec.date_range_id:
-                if (
-                    rec.date_from != rec.date_range_id.date_start
-                    or rec.date_to != rec.date_range_id.date_end
-                ):
-                    rec.date_range_id = False
+            if rec.date_range_id and (
+                rec.date_from != rec.date_range_id.date_start
+                or rec.date_to != rec.date_range_id.date_end
+            ):
+                rec.date_range_id = False
 
     def action_draft(self):
         self.write({"state": "draft"})

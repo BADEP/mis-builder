@@ -84,12 +84,11 @@ class MisReportInstance(models.Model):
             return self._add_column_mis_budget(
                 aep, kpi_matrix, period, label, description
             )
-        elif period.source == SRC_MIS_BUDGET_BY_ACCOUNT:
+        if period.source == SRC_MIS_BUDGET_BY_ACCOUNT:
             return self._add_column_move_lines(
                 aep, kpi_matrix, period, label, description
             )
-        else:
-            return super()._add_column(aep, kpi_matrix, period, label, description)
+        return super()._add_column(aep, kpi_matrix, period, label, description)
 
     def drilldown(self, arg):
         self.ensure_one()
