@@ -72,7 +72,7 @@ class MisReportInstancePeriod(models.Model):
         filters = self._get_additional_move_line_filter()
 
         query_companies = self.report_instance_id.query_company_ids
-        filters = Domain.AND(
+        return Domain.AND(
             [
                 filters,
                 [
@@ -82,5 +82,3 @@ class MisReportInstancePeriod(models.Model):
                 ],
             ]
         )
-
-        return filters
